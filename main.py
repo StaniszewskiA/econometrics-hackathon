@@ -1,3 +1,5 @@
+import pandas as pd
+
 from data import Data
 from utils import Utils
 
@@ -16,6 +18,9 @@ def main():
     utils.substract_value_12_26()
     print(utils.substract_value_12_26().head(200))
     print(utils.substract_value_12_26().columns)
+
+def buy_or_sell(date, hour, price, company) -> pd.DataFrame:
+    pass
 
 if __name__ == '__main__':
     main()
