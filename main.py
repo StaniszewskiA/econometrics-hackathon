@@ -13,7 +13,11 @@ def main():
     print(data.read_csv_from_root().head())
     print(utils.moving_average().head(200))
     print(utils.moving_average().columns)
-    print(data.data_period_calculator())
+
+    # substraction
+    utils.substract_value_12_26()
+    print(utils.substract_value_12_26().head(200))
+    print(utils.substract_value_12_26().columns)
 
 def buy_or_sell(date, hour, price, company) -> pd.DataFrame:
     pass

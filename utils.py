@@ -27,6 +27,23 @@ class Utils(Data):
             df[new_column_name_1] = ma1
             df2[new_column_name_2] = ma2
 
+        # Usuń pierwsze 62 kolumny z df2
+        df2 = df2.iloc[:, 62:]
+
+        # Połącz oba DataFrame'y
+        merged_df = pd.concat([df, df2], axis=1)
+
+        return merged_df
+    
+    def substract_value_12_26(self):
+        df = self.moving_average()
+        
+        for col in df.columns:
+            if col.endswith("_average_12"):
+                col_12 = col[:len(col) - 11]
+                new_col_name = f"{col_12}_substract"
+                df[new_col_name] = df[col] - df[f"{col_12}_average_26"]
+
         return df
     
     def cumulated_rate_of_return(transactions: pd.DataFrame) -> float:
