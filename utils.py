@@ -8,7 +8,7 @@ class Utils(Data):
     def __repr__(self) -> str:
         "Klasa do pracy na danych w plikach, głównie wykresy"
 
-    def create_plot(data: pd.DataFrame, col: str) -> None:
+    def create_plot(self, data: pd.DataFrame, col: str) -> None:
         data[col].plot()
 
     def moving_average(self):
@@ -29,5 +29,16 @@ class Utils(Data):
 
         return df
     
+    def cumulated_rate_of_return(transactions: pd.DataFrame) -> float:
+        sum: float = 0
+
+        for index, row in transactions.iterrows():
+            p_k = row["Kupno"]
+            p_s = row["Sprzedaż"]
+            sum += Utils.rate_of_return(p_k, p_s)
+
+        return sum
+
+    @staticmethod
     def rate_of_return(p_k: float, p_s: float) -> float:
         return (p_s - p_k) / p_k
