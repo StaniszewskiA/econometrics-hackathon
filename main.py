@@ -25,6 +25,7 @@ def main():
 
     # MCAD, signal lane
     print(utils.MACD_signal_lane_combined().columns)
+    print(utils.MACD_signal_lane_combined().head(200))
 
 def buy_or_sell(date, hour, price, company) -> pd.DataFrame:
     pass

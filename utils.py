@@ -89,4 +89,12 @@ class Utils(Data):
 
         df_merged = pd.concat([df_ema, df_substract], axis=1)
 
+        # cleaning, delete columns with data and czas
+        df_merged = df_merged.drop(columns=["data_ema", "czas_ema", "data_substract", "czas_substract"])
+
+        # addint columns with data i czas from original df, move them to the beginning
+        df = self.read_csv_from_root()
+        df = df[["data", "czas"]]
+        df_merged = pd.concat([df, df_merged], axis=1)
+
         return df_merged
