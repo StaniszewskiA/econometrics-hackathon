@@ -17,30 +17,32 @@ class Data:
         df = self.read_csv_from_root()
         return df["data"].max() - df["data"].min() + 1
     
-    def buy_or_sell(data: pd.DataFrame) -> pd.DataFrame:
+    def buy_or_sell(data: pd.DataFrame, price_data: pd.DataFrame) -> pd.DataFrame:
         signal_columns = [col for col in data.columns if 'signal' in col]
-        #macd_columns = [col for col in data.columns if 'macd' in col]
+        macd_columns = [col for col in data.columns if 'MACD' in col]
  
-        macd: pd.Series = data["macd_lane"]
-        signal: pd.Series = data["signal_lane"]
-        already_bought = {company: False for company in signal_columns}
+        companies = set()
+        pairs_by_company = {}
 
-        columns = ["Spółka", "Sygnał"]
+        for signal_col in signal_columns:
+            company = signal_col.split('_')[0]
+            companies.add(company)
+            if company not in pairs_by_company:
+                pairs_by_company[company] = []
 
-        result_df: pd.DataFrame = pd.DataFrame(columns=columns) 
+            for macd_col in macd_columns:
+                if macd_col.startswith(company):
+                    pairs_by_company[company].append((signal_col, macd_col))
+        
+        result_df = pd.DataFrame(index=data.index, columns=["Sygnał", "Spółka"])
+        already_bought = {}
 
-        for company in signal_columns:
-            for index, row in data.iterrows():
-                if macd[company][index] == signal[company][index]:
-                    if (macd[company][index - 1] < signal[company][index - 1]) and already_bought[company]:
-                        result_df.at[index, "Sygnał"] = "Sprzedawaj"
-                    elif macd[company][index - 1] > signal[company][index - 1]:
-                        already_bought[company] = True
-                        result_df.at[index, "Sygnał"] = "Kupuj"
-                else:
-                    result_df.at[index, "Sygnał"] = ""
-
-            result_df.loc[result_df["Sygnał"].notnull(), "Spółka"] = company[:3]
+        for company, pairs in pairs_by_company.items():
+            for signal_col, macd_col in pairs:
+                signal_values = data[signal_col]
+                macd_values = data[macd_col]
+                for i in range(1, len(data)):
+                    if signal_values.iloc[i] == macd_values.iloc[i]:
 
         return result_df
                     
