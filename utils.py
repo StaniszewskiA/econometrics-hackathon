@@ -47,14 +47,14 @@ class Utils(Data):
         return df
     
     def cumulated_rate_of_return(transactions: pd.DataFrame) -> float:
-        sum: float = 0
+        sum: float = 1
 
         for index, row in transactions.iterrows():
             p_k = row["Kupno"]
             p_s = row["Sprzedaż"]
-            sum += Utils.rate_of_return(p_k, p_s)
+            sum *= (1 + Utils.rate_of_return(p_k, p_s))
 
-        return sum
+        return sum - 1
 
     @staticmethod
     def rate_of_return(p_k: float, p_s: float) -> float:
