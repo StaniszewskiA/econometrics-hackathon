@@ -35,7 +35,7 @@ class Utils(Data):
 
         return merged_df
     
-    def substract_value_12_26(self):
+    def substract_value_12_26(self) -> pd.DataFrame: # MACD lane
         df = self.moving_average()
         
         for col in df.columns:
@@ -43,6 +43,26 @@ class Utils(Data):
                 col_12 = col[:len(col) - 11]
                 new_col_name = f"{col_12}_substract"
                 df[new_col_name] = df[col] - df[f"{col_12}_average_26"]
+
+        return df
+    
+    def signal_lane(self) -> pd.DataFrame:
+        n = len(self.substract_value_12_26())
+        k = 2 / (n + 1)
+
+        df = self.substract_value_12_26()
+        new_df = df.iloc[:, :62]
+
+        # calculate EMAs for every column in new_df
+        for col in new_df.columns:
+            new_column_name = f"{col}_ema"
+            new_df[new_column_name] = new_df[col].ewm(span=n, adjust=False).mean()
+
+        # save only ema columns
+        new_df = new_df.filter(like="_ema")
+
+        # merge new_df with df
+        df = pd.concat([df, new_df], axis=1)
 
         return df
     
@@ -59,3 +79,28 @@ class Utils(Data):
     @staticmethod
     def rate_of_return(p_k: float, p_s: float) -> float:
         return (p_s - p_k) / p_k
+    
+    def MACD_signal_lane_combined(self) -> pd.DataFrame:
+        df_ema = self.signal_lane()
+        df_ema = df_ema.filter(like="_ema")
+
+        # change ema columns names to signal_lane
+        df_ema.columns = [col.replace("_ema", "_signal_lane") for col in df_ema.columns]
+
+        df_substract = self.substract_value_12_26()
+        df_substract = df_substract.filter(like="_substract")
+
+        # change substract columns names to MACD_lane
+        df_substract.columns = [col.replace("_substract", "_MACD_lane") for col in df_substract.columns]
+
+        df_merged = pd.concat([df_ema, df_substract], axis=1)
+
+        # cleaning, delete columns with data and czas
+        df_merged = df_merged.drop(columns=["data_signal_lane", "czas_signal_lane", "data_MACD_lane", "czas_MACD_lane"])
+
+        # addint columns with data i czas from original df, move them to the beginning
+        df = self.read_csv_from_root()
+        df = df[["data", "czas"]]
+        df_merged = pd.concat([df, df_merged], axis=1)
+
+        return df_merged
