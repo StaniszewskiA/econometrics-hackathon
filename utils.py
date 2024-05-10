@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 from data import Data
 
@@ -17,8 +18,8 @@ class Utils(Data):
         df = self.read_csv_from_root()
         df2 = df.copy()
 
-        window_size_1 = int(4 * 288)
-        window_size_2 = int(9 * 288)
+        window_size_1 = int(1 * 288)
+        window_size_2 = int(3 * 288)
 
         for column in df.columns:
             ma1 = df[column].rolling(window=window_size_1).mean()
@@ -112,26 +113,28 @@ class Utils(Data):
         df = self.MACD_signal_lane_combined()
 
         # Wybierz potrzebne kolumny z DataFrame
-        df = df[["data", "czas", "ALE_signal_lane", "ALE_MACD_lane"]]
+        df = df[["czas", "data", "ALE_signal_lane", "ALE_MACD_lane"]]
 
-        # Utwórz nowy obraz (figurę)
+        # check data i czas types
+        print(df["data"].dtype)
+        print(df["czas"].dtype)
+
+        # convert data and czas to string, then merge them
+        df["data"] = df["data"].astype(str)
+        df["czas"] = df["czas"].astype(str)
+        df["datetime"] = df["data"] + " " + df["czas"]
+
+        # plot  
         fig, ax = plt.subplots()
-
-        # Narysuj pierwszą linię - ALE_signal_lane
-        ax.plot(df["data"], df["ALE_signal_lane"], label="ALE_signal_lane")
-
-        # Narysuj drugą linię - ALE_MACD_lane
-        ax.plot(df["czas"], df["ALE_MACD_lane"], label="ALE_MACD_lane")
-
-        # Dodaj legendę
+        ax.plot(df["datetime"], df["ALE_signal_lane"], label="Signal lane")
+        ax.plot(df["datetime"], df["ALE_MACD_lane"], label="MACD lane")
         ax.legend()
 
-        # Dodaj tytuł i etykiety osi
-        ax.set_title("Wykres ALE_signal_lane i ALE_MACD_lane")
-        ax.set_xlabel("Czas")
-        ax.set_ylabel("Wartość")
+        # x ticks
+        ax.set_xticks(np.arange(0, len(df), 1000))
 
-        # save figure
-        fig.savefig("plot.png")
-
-        fig.show()
+        # rotate x labels
+        plt.xticks(rotation=0)
+        
+        # save plot
+        plt.savefig("plot.png")
