@@ -45,3 +45,23 @@ class Utils(Data):
                 df[new_col_name] = df[col] - df[f"{col_12}_average_26"]
 
         return df
+    
+    def signal_lane(self):
+        n = len(self.substract_value_12_26())
+        k = 2 / (n + 1)
+
+        df = self.substract_value_12_26()
+        new_df = df.iloc[:, :62]
+
+        # calculate EMAs for every column in new_df
+        for col in new_df.columns:
+            new_column_name = f"{col}_ema"
+            new_df[new_column_name] = new_df[col].ewm(span=n, adjust=False).mean()
+
+        # save only ema columns
+        new_df = new_df.filter(like="_ema")
+
+        # merge new_df with df
+        df = pd.concat([df, new_df], axis=1)
+
+        return df

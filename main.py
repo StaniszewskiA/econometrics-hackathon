@@ -19,6 +19,10 @@ def main():
     print(utils.substract_value_12_26().head(200))
     print(utils.substract_value_12_26().columns)
 
+    # signal lane
+    print(utils.signal_lane().columns)
+    print(utils.signal_lane().head(200))
+
 def buy_or_sell(date, hour, price, company) -> pd.DataFrame:
     pass
 
