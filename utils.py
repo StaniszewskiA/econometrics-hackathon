@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from data import Data
 
 class Utils(Data):
@@ -15,15 +17,15 @@ class Utils(Data):
         df = self.read_csv_from_root()
         df2 = df.copy()
 
-        window_size_1 = 12
-        window_size_2 = 26
+        window_size_1 = int(4 * 288)
+        window_size_2 = int(9 * 288)
 
         for column in df.columns:
             ma1 = df[column].rolling(window=window_size_1).mean()
             ma2 = df2[column].rolling(window=window_size_2).mean()
             
-            new_column_name_1 = f"{column}_average_{window_size_1}"
-            new_column_name_2 = f"{column}_average_{window_size_2}"
+            new_column_name_1 = f"{column}_average_12"
+            new_column_name_2 = f"{column}_average_26"
             df[new_column_name_1] = ma1
             df2[new_column_name_2] = ma2
 
@@ -47,8 +49,9 @@ class Utils(Data):
         return df
     
     def signal_lane(self) -> pd.DataFrame:
-        n = len(self.substract_value_12_26())
-        k = 2 / (n + 1)
+        # calculate span to be equal to number of rows for 4 days
+        df = self.read_csv_from_root()
+        span = int(4 * 288)
 
         df = self.substract_value_12_26()
         new_df = df.iloc[:, :62]
@@ -56,7 +59,7 @@ class Utils(Data):
         # calculate EMAs for every column in new_df
         for col in new_df.columns:
             new_column_name = f"{col}_ema"
-            new_df[new_column_name] = new_df[col].ewm(span=n, adjust=False).mean()
+            new_df[new_column_name] = new_df[col].ewm(span=span, adjust=False).mean()
 
         # save only ema columns
         new_df = new_df.filter(like="_ema")
@@ -104,3 +107,31 @@ class Utils(Data):
         df_merged = pd.concat([df, df_merged], axis=1)
 
         return df_merged
+    
+    def figure_creator(self) -> plt.figure:
+        df = self.MACD_signal_lane_combined()
+
+        # Wybierz potrzebne kolumny z DataFrame
+        df = df[["data", "czas", "ALE_signal_lane", "ALE_MACD_lane"]]
+
+        # Utwórz nowy obraz (figurę)
+        fig, ax = plt.subplots()
+
+        # Narysuj pierwszą linię - ALE_signal_lane
+        ax.plot(df["data"], df["ALE_signal_lane"], label="ALE_signal_lane")
+
+        # Narysuj drugą linię - ALE_MACD_lane
+        ax.plot(df["czas"], df["ALE_MACD_lane"], label="ALE_MACD_lane")
+
+        # Dodaj legendę
+        ax.legend()
+
+        # Dodaj tytuł i etykiety osi
+        ax.set_title("Wykres ALE_signal_lane i ALE_MACD_lane")
+        ax.set_xlabel("Czas")
+        ax.set_ylabel("Wartość")
+
+        # save figure
+        fig.savefig("plot.png")
+
+        fig.show()
