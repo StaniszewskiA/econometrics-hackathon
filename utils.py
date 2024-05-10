@@ -35,7 +35,7 @@ class Utils(Data):
 
         return merged_df
     
-    def substract_value_12_26(self):
+    def substract_value_12_26(self) -> pd.DataFrame: # MACD lane
         df = self.moving_average()
         
         for col in df.columns:
@@ -46,7 +46,7 @@ class Utils(Data):
 
         return df
     
-    def signal_lane(self):
+    def signal_lane(self) -> pd.DataFrame:
         n = len(self.substract_value_12_26())
         k = 2 / (n + 1)
 
@@ -79,3 +79,14 @@ class Utils(Data):
     @staticmethod
     def rate_of_return(p_k: float, p_s: float) -> float:
         return (p_s - p_k) / p_k
+    
+    def MACD_signal_lane_combined(self) -> pd.DataFrame:
+        df_ema = self.signal_lane()
+        df_ema = df_ema.filter(like="_ema")
+
+        df_substract = self.substract_value_12_26()
+        df_substract = df_substract.filter(like="_substract")
+
+        df_merged = pd.concat([df_ema, df_substract], axis=1)
+
+        return df_merged
