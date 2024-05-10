@@ -32,3 +32,14 @@ class Utils(Data):
         merged_df = pd.concat([df, df2], axis=1)
 
         return merged_df
+    
+    def substract_value_12_26(self):
+        df = self.moving_average()
+        
+        for col in df.columns:
+            if col.endswith("_average_12"):
+                col_12 = col[:len(col) - 11]
+                new_col_name = f"{col_12}_substract"
+                df[new_col_name] = df[col] - df[f"{col_12}_average_26"]
+
+        return df
