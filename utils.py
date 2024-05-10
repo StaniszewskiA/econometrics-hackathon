@@ -84,13 +84,19 @@ class Utils(Data):
         df_ema = self.signal_lane()
         df_ema = df_ema.filter(like="_ema")
 
+        # change ema columns names to signal_lane
+        df_ema.columns = [col.replace("_ema", "_signal_lane") for col in df_ema.columns]
+
         df_substract = self.substract_value_12_26()
         df_substract = df_substract.filter(like="_substract")
+
+        # change substract columns names to MACD_lane
+        df_substract.columns = [col.replace("_substract", "_MACD_lane") for col in df_substract.columns]
 
         df_merged = pd.concat([df_ema, df_substract], axis=1)
 
         # cleaning, delete columns with data and czas
-        df_merged = df_merged.drop(columns=["data_ema", "czas_ema", "data_substract", "czas_substract"])
+        df_merged = df_merged.drop(columns=["data_signal_lane", "czas_signal_lane", "data_MACD_lane", "czas_MACD_lane"])
 
         # addint columns with data i czas from original df, move them to the beginning
         df = self.read_csv_from_root()
