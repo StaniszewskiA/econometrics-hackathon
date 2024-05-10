@@ -51,7 +51,6 @@ class Utils(Data):
     
     def signal_lane(self) -> pd.DataFrame:
         # calculate span to be equal to number of rows for 4 days
-        df = self.read_csv_from_root()
         span = int(4 * 288)
 
         df = self.substract_value_12_26()
@@ -60,7 +59,7 @@ class Utils(Data):
         # calculate EMAs for every column in new_df
         for col in new_df.columns:
             new_column_name = f"{col}_ema"
-            new_df[new_column_name] = new_df[col].ewm(span=span, adjust=False).mean()
+            new_df[new_column_name] = new_df[col].ewm(span=span).mean()
 
         # save only ema columns
         new_df = new_df.filter(like="_ema")
@@ -128,7 +127,7 @@ class Utils(Data):
         fig, ax = plt.subplots()
         ax.plot(df["datetime"], df["ALE_signal_lane"], label="Signal lane")
         ax.plot(df["datetime"], df["ALE_MACD_lane"], label="MACD lane")
-        ax.legend()
+        # ax.legend()
 
         # x ticks
         ax.set_xticks(np.arange(0, len(df), 1000))

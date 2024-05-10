@@ -43,6 +43,6 @@ class Data:
                 macd_values = data[macd_col]
                 for i in range(1, len(data)):
                     if signal_values.iloc[i] == macd_values.iloc[i]:
-
+                        pass
+        
         return result_df
-                    
