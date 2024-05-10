@@ -9,7 +9,8 @@ def main():
     utils = Utils(my_root, my_filename)
 
     print(data.read_csv_from_root().head())
-    print(utils.moving_average().head())
+    print(utils.moving_average()[0].head(200))
+    print(utils.moving_average()[1].columns)
     print(data.data_period_calculator())
 
 if __name__ == '__main__':
