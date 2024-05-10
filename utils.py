@@ -7,27 +7,28 @@ class Utils(Data):
         Data.__init__(self, root, filename)
 
     def __repr__(self) -> str:
-        "Klasa do pracy na danych w plikach, głównie wykresy"
-
-    def create_plot():
-        pass
+        return "Klasa do pracy na danych w plikach, głównie wykresy"
 
     def moving_average(self):
         df = self.read_csv_from_root()
         df2 = df.copy()
 
-        window_size = 12
+        window_size_1 = 12
+        window_size_2 = 26
+
         for column in df.columns:
-            ma = df[column].rolling(window=window_size).mean()
+            ma1 = df[column].rolling(window=window_size_1).mean()
+            ma2 = df2[column].rolling(window=window_size_2).mean()
             
-            new_column_name = f"{column}_average_12"
-            df[new_column_name] = ma
+            new_column_name_1 = f"{column}_average_{window_size_1}"
+            new_column_name_2 = f"{column}_average_{window_size_2}"
+            df[new_column_name_1] = ma1
+            df2[new_column_name_2] = ma2
 
-        window_size = 26
-        for column in df2.columns:
-            ma = df2[column].rolling(window=window_size).mean()
-            
-            new_column_name = f"{column}_average_26"
-            df2[new_column_name] = ma
+        # Usuń pierwsze 62 kolumny z df2
+        df2 = df2.iloc[:, 62:]
 
-        return df, df2
+        # Połącz oba DataFrame'y
+        merged_df = pd.concat([df, df2], axis=1)
+
+        return merged_df
