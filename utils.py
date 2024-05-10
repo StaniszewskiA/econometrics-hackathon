@@ -1,3 +1,4 @@
+import pandas as pd
 from data import Data
 
 class Utils(Data):
@@ -7,8 +8,8 @@ class Utils(Data):
     def __repr__(self) -> str:
         "Klasa do pracy na danych w plikach, głównie wykresy"
 
-    def create_plot():
-        pass
+    def create_plot(data: pd.DataFrame, col: str) -> None:
+        data[col].plot()
 
     def moving_average(self):
         df = self.read_csv_from_root()
