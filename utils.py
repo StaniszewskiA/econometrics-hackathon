@@ -28,3 +28,6 @@ class Utils(Data):
             df2[new_column_name_2] = ma2
 
         return df
+    
+    def rate_of_return(p_k: float, p_s: float) -> float:
+        return (p_s - p_k) / p_k
