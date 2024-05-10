@@ -13,12 +13,18 @@ class Utils(Data):
 
     def moving_average(self):
         df = self.read_csv_from_root()
+        df2 = df.copy()
 
-        window_size = 3
+        window_size_1 = 12
+        window_size_2 = 26
+
         for column in df.columns:
-            ma = df[column].rolling(window=window_size).mean()
+            ma1 = df[column].rolling(window=window_size_1).mean()
+            ma2 = df2[column].rolling(window=window_size_2).mean()
             
-            new_column_name = f"{column}_average"
-            df[new_column_name] = ma
+            new_column_name_1 = f"{column}_average_{window_size_1}"
+            new_column_name_2 = f"{column}_average_{window_size_2}"
+            df[new_column_name_1] = ma1
+            df2[new_column_name_2] = ma2
 
         return df
